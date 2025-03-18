@@ -147,13 +147,22 @@ class PacienteController extends Controller
     public function destroy($id)
     {
         $paciente = Paciente::where('id_centro', Auth::user()->id_centro)
-            ->with(['historialClinico.anamnesis', 'historialClinico.diagnosticos', 'historialClinico.recetas', 'historialClinico.examenesMedicos'])
+            ->with([
+                'historialClinico.anamnesis',
+                'historialClinico.diagnostico',
+                'historialClinico.recetas',
+                'historialClinico.examenesMedicos',
+                'historialClinico.consultas',
+                'historialClinico.cirugias',
+                'historialClinico.tratamientos',
+                'historialClinico.alergias',
+                'historialClinico.vacunas'
+            ])
             ->findOrFail($id);
 
         // Inicializar detalles de eliminación
         $detalles = [
             "DNI: {$paciente->dni}",
-            "Email: {$paciente->email}"
         ];
 
         // Recorrer historial clínico
@@ -164,7 +173,7 @@ class PacienteController extends Controller
                     HistorialEliminacionesController::registrarEliminacion(
                         'Anamnesis',
                         "Paciente: {$paciente->primer_nombre} {$paciente->primer_apellido}",
-                        "Detalle: {$anamnesis->descripcion}"
+                        "Detalle: " . ($anamnesis->descripcion ?: "No especificado")
                     );
                     $anamnesis->delete();
                 }
@@ -177,7 +186,8 @@ class PacienteController extends Controller
                     HistorialEliminacionesController::registrarEliminacion(
                         'Diagnóstico',
                         "Paciente: {$paciente->primer_nombre} {$paciente->primer_apellido}",
-                        "Enfermedad: {$diagnostico->nombre}, Observaciones: {$diagnostico->observaciones}"
+                        "Enfermedad: " . ($diagnostico->descripcion ?: "Sin especificar") .
+                            ", Observaciones: " . ($diagnostico->observaciones ?: "Sin observaciones")
                     );
                     $diagnostico->delete();
                 }
@@ -190,7 +200,7 @@ class PacienteController extends Controller
                     HistorialEliminacionesController::registrarEliminacion(
                         'Receta',
                         "Paciente: {$paciente->primer_nombre} {$paciente->primer_apellido}",
-                        "Medicamentos: {$receta->detalle}"
+                        "Fecha: " . ($receta->fecha_receta ?: "No registrada")
                     );
                     $receta->delete();
                 }
@@ -203,11 +213,81 @@ class PacienteController extends Controller
                     HistorialEliminacionesController::registrarEliminacion(
                         'Examen Médico',
                         "Paciente: {$paciente->primer_nombre} {$paciente->primer_apellido}",
-                        "Tipo: {$examen->tipo}, Resultado: {$examen->resultado}"
+                        "Tipo: " . ($examen->tipo_examen ?: "No especificado") .
+                            ", Resultado: " . ($examen->resultados ?: "No especificado")
                     );
                     $examen->delete();
                 }
                 $detalles[] = "Exámenes médicos eliminados: " . $historial->examenesMedicos->count();
+            }
+
+            // Eliminar consultas
+            if ($historial->consultas) {
+                foreach ($historial->consultas as $consulta) {
+                    HistorialEliminacionesController::registrarEliminacion(
+                        'Consulta',
+                        "Paciente: {$paciente->primer_nombre} {$paciente->primer_apellido}",
+                        "Fecha: " . ($consulta->fecha_consulta ?: "No registrada") .
+                            ", Motivo: " . ($consulta->motivo_consulta ?: "No especificado")
+                    );
+                    $consulta->delete();
+                }
+                $detalles[] = "Consultas eliminadas: " . $historial->consultas->count();
+            }
+
+            // Eliminar cirugías
+            if ($historial->cirugias) {
+                foreach ($historial->cirugias as $cirugia) {
+                    HistorialEliminacionesController::registrarEliminacion(
+                        'Cirugía',
+                        "Paciente: {$paciente->primer_nombre} {$paciente->primer_apellido}",
+                        "Tipo: " . ($cirugia->tipo_cirugia ?: "No especificado") .
+                            ", Cirujano: " . ($cirugia->cirujano ?: "No especificado")
+                    );
+                    $cirugia->delete();
+                }
+                $detalles[] = "Cirugías eliminadas: " . $historial->cirugias->count();
+            }
+
+            // Eliminar tratamientos
+            if ($historial->tratamientos) {
+                foreach ($historial->tratamientos as $tratamiento) {
+                    HistorialEliminacionesController::registrarEliminacion(
+                        'Tratamiento',
+                        "Paciente: {$paciente->primer_nombre} {$paciente->primer_apellido}",
+                        "Descripción: " . ($tratamiento->descripcion ?: "No especificado")
+                    );
+                    $tratamiento->delete();
+                }
+                $detalles[] = "Tratamientos eliminados: " . $historial->tratamientos->count();
+            }
+
+            // Eliminar alergias
+            if ($historial->alergias) {
+                foreach ($historial->alergias as $alergia) {
+                    HistorialEliminacionesController::registrarEliminacion(
+                        'Alergia',
+                        "Paciente: {$paciente->primer_nombre} {$paciente->primer_apellido}",
+                        "Tipo: " . ($alergia->tipo ?: "No especificado") .
+                            ", Severidad: " . ($alergia->severidad ?: "No especificado")
+                    );
+                    $alergia->delete();
+                }
+                $detalles[] = "Alergias eliminadas: " . $historial->alergias->count();
+            }
+
+            // Eliminar vacunas
+            if ($historial->vacunas) {
+                foreach ($historial->vacunas as $vacuna) {
+                    HistorialEliminacionesController::registrarEliminacion(
+                        'Vacuna',
+                        "Paciente: {$paciente->primer_nombre} {$paciente->primer_apellido}",
+                        "Nombre: " . ($vacuna->nombre_vacuna ?: "No especificado") .
+                            ", Fecha: " . ($vacuna->fecha_aplicacion ?: "No registrada")
+                    );
+                    $vacuna->delete();
+                }
+                $detalles[] = "Vacunas eliminadas: " . $historial->vacunas->count();
             }
         }
 

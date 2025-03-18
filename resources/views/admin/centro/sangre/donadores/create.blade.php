@@ -11,9 +11,9 @@
         <label for="buscar_dni" style="display: block; font-weight: bold;">Buscar DNI:</label>
         <div style="display: flex; gap: 10px;">
             <input type="text" id="buscar_dni" name="buscar_dni" placeholder="Ingrese DNI" maxlength="8"
-                   style="width: 70%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                style="width: 70%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
             <button type="button" id="btn-buscar-dni"
-                    style="background: #004643; color: #fff; padding: 10px; border: none; border-radius: 4px;">
+                style="background: #004643; color: #fff; padding: 10px; border: none; border-radius: 4px;">
                 Buscar
             </button>
         </div>
@@ -26,21 +26,21 @@
         <div style="margin-bottom: 15px;">
             <label for="nombre" style="display: block; font-weight: bold;">Nombre:</label>
             <input type="text" id="nombre" name="nombre" value="{{ old('nombre') }}"
-                   style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" required readonly>
+                style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" required readonly>
         </div>
 
         <!-- Apellido -->
         <div style="margin-bottom: 15px;">
             <label for="apellido" style="display: block; font-weight: bold;">Apellido:</label>
             <input type="text" id="apellido" name="apellido" value="{{ old('apellido') }}"
-                   style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" required readonly>
+                style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" required readonly>
         </div>
 
         <!-- DNI -->
         <div style="margin-bottom: 15px;">
             <label for="dni" style="display: block; font-weight: bold;">DNI:</label>
             <input type="text" id="dni" name="dni" value="{{ old('dni') }}"
-                   style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" required readonly>
+                style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" required readonly>
         </div>
 
         <!-- Tipo de Sangre -->
@@ -63,7 +63,7 @@
         <div style="margin-bottom: 15px;">
             <label for="telefono" style="display: block; font-weight: bold;">Teléfono:</label>
             <input type="text" id="telefono" name="telefono" value="{{ old('telefono') }}"
-                   style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
         </div>
 
         <!-- Estado -->
@@ -80,7 +80,7 @@
         <div style="margin-bottom: 15px;">
             <label for="ultima_donacion" style="display: block; font-weight: bold;">Última Donación (Opcional):</label>
             <input type="date" id="ultima_donacion" name="ultima_donacion" value="{{ old('ultima_donacion') }}"
-                   style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
         </div>
 
         <button type="submit" style="background: #004643; color: #fff; padding: 10px 20px; border: none; border-radius: 4px; width: 100%;">

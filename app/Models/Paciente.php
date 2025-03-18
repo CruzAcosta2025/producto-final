@@ -109,4 +109,42 @@ class Paciente extends Model
             'id_historial' // Local key en HistorialClinico
         );
     }
+
+    public function consultas()
+    {
+        return $this->hasManyThrough(
+            Receta::class,
+            HistorialClinico::class,
+            'id_paciente', // Foreign key en HistorialClinico
+            'id_historial', // Foreign key en Receta
+            'id_paciente', // Local key en Paciente
+            'id_historial' // Local key en HistorialClinico
+        );
+    }
+
+    public function cirugias()
+    {
+        return $this->hasManyThrough(
+            Receta::class,
+            HistorialClinico::class,
+            'id_paciente', // Foreign key en HistorialClinico
+            'id_historial', // Foreign key en Receta
+            'id_paciente', // Local key en Paciente
+            'id_historial' // Local key en HistorialClinico
+        );
+    }
+
+    public function tratamientos()
+    {
+        return $this->hasManyThrough(
+            Receta::class,
+            HistorialClinico::class,
+            'id_paciente', // Foreign key en HistorialClinico
+            'id_historial', // Foreign key en Receta
+            'id_paciente', // Local key en Paciente
+            'id_historial' // Local key en HistorialClinico
+        );
+    }
+
+    
 }

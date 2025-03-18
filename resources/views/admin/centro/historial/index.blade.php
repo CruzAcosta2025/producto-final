@@ -42,15 +42,13 @@
     <p class="text-red-600 font-medium">No se encontró ningún paciente con el DNI {{ $dni }}.</p>
     @endif
 
-
-
     <!-- Tabla de todos los historiales clínicos -->
     <div class="overflow-x-auto">
         <table class="min-w-full bg-orange-100 border border-orange-600 rounded-lg shadow-md">
             <thead class="bg-orange-600 text-white">
                 <tr>
                     <th class="px-6 py-3 text-left border border-orange-700 text-center">ID Historial</th>
-                    <th class="px-6 py-3 text-left border border-orange-700 text-center">Paciente</th>
+                    <!-- <th class="px-6 py-3 text-left border border-orange-700 text-center">Paciente</th> -->
                     <th class="px-6 py-3 text-left border border-orange-700 text-center">Fecha de Creación</th>
                     <th class="px-6 py-3 text-left border border-orange-700 text-center">Acciones</th>
                 </tr>
@@ -59,7 +57,11 @@
                 @foreach ($historiales as $historial)
                 <tr class="border border-orange-500 hover:bg-orange-200 transition">
                     <td class="px-6 py-4 border border-orange-500 text-center">{{ $historial->id_historial }}</td>
-                    <td class="px-6 py-4 border border-orange-500 text-center">{{ $historial->paciente->primer_nombre }} {{ $historial->paciente->primer_apellido }} {{ $historial->paciente->segundo_apellido }}</td>
+                    @if($historial->paciente)
+                    <p>Paciente: {{ $historial->paciente->primer_nombre }} {{ $historial->paciente->primer_apellido }} {{ $historial->paciente->segundo_apellido }}</p>
+                    @else
+                    <p><strong>Paciente no encontrado</strong></p>
+                    @endif
                     <td class="px-6 py-4 border border-orange-500 text-center">{{ $historial->fecha_creacion }}</td>
                     <td class="px-3 py-2 flex flex-wrap justify-center gap-2">
 

@@ -136,7 +136,6 @@ Route::middleware(['auth'])->group(function () {
     // Rutas para Anamnesis
     Route::prefix('historial/{idHistorial}/anamnesis')->group(function () {
         Route::get('/create', [AnamnesisController::class, 'create'])->name('anamnesis.create');
-        //Route::get('/', [AnamnesisController::class, 'index'])->name('anamnesis.index');
         Route::post('/', [AnamnesisController::class, 'store'])->name('anamnesis.store');
         Route::get('/{idAnamnesis}/edit', [AnamnesisController::class, 'edit'])->name('anamnesis.edit');
         Route::put('/{idAnamnesis}', [AnamnesisController::class, 'update'])->name('anamnesis.update');

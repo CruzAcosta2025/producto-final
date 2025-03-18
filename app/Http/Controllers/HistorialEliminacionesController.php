@@ -24,7 +24,7 @@ class HistorialEliminacionesController extends Controller
 
 
     // Función para registrar una eliminación en el historial
-    public static function registrarEliminacion($recurso_tipo, $recurso_nombre, $detalles = null)
+    public static function registrarEliminacion($recurso_tipo, $recurso_nombre, $recurso_detalles=null)
     {
         $usuario = Auth::user();
 
@@ -33,7 +33,7 @@ class HistorialEliminacionesController extends Controller
             'id_centro' => $usuario->id_centro,
             'recurso_tipo' => $recurso_tipo,
             'recurso_nombre' => $recurso_nombre,
-            'detalles' => $detalles,
+            'detalles' => $recurso_detalles,
             'fecha_eliminacion' => now(),
         ]);
     }

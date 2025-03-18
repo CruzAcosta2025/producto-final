@@ -22,7 +22,7 @@ class Alergia extends Model
         'tipo',
         'descripcion',
         'severidad',
-        'deleted_at' // ✅ Se recomienda incluirlo
+        'deleted_at' 
     ];
 
     public function paciente()
