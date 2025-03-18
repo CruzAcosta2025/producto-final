@@ -8,11 +8,14 @@ use App\Models\Paciente;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use App\Services\ReniecService;
+use App\Http\Controllers\HistorialEliminacionesController; // Agregar esta línea arriba
+
 
 class PacienteController extends Controller
 {
 
     protected $reniecService;
+
 
     public function __construct(ReniecService $reniecService)
     {
@@ -31,8 +34,6 @@ class PacienteController extends Controller
             return response()->json(['error' => 'DNI no encontrado.'], 404);
         }
 
-        
-
         return response()->json([
             'dni' => $datos['numeroDocumento'],
             'primer_nombre' => $datos['nombres'], // Ahora todo el nombre en un solo campo
@@ -40,7 +41,6 @@ class PacienteController extends Controller
             'segundo_apellido' => $datos['apellidoMaterno'],
         ], 200);
     }
-
 
 
     // Listar pacientes del centro médico del usuario autenticado
@@ -117,14 +117,8 @@ class PacienteController extends Controller
         return redirect()->route('pacientes.index')->with('success', 'Paciente actualizado exitosamente.');
     }
 
-    // Eliminar un paciente
-    public function destroy($id)
-    {
-        $paciente = Paciente::where('id_centro', Auth::user()->id_centro)->findOrFail($id);
-        $paciente->delete();
 
-        return redirect()->route('pacientes.index')->with('success', 'Paciente eliminado exitosamente.');
-    }
+
 
     // Validación común para creación y edición de pacientes
     private function validatePaciente(Request $request, $paciente = null)
@@ -148,5 +142,85 @@ class PacienteController extends Controller
             'relacion_contacto_emergencia' => 'nullable|string|max:50',
 
         ]);
+    }
+
+    public function destroy($id)
+    {
+        $paciente = Paciente::where('id_centro', Auth::user()->id_centro)
+            ->with(['historialClinico.anamnesis', 'historialClinico.diagnosticos', 'historialClinico.recetas', 'historialClinico.examenesMedicos'])
+            ->findOrFail($id);
+
+        // Inicializar detalles de eliminación
+        $detalles = [
+            "DNI: {$paciente->dni}",
+            "Email: {$paciente->email}"
+        ];
+
+        // Recorrer historial clínico
+        foreach ($paciente->historialClinico as $historial) {
+            // Eliminar anamnesis
+            if ($historial->anamnesis) {
+                foreach ($historial->anamnesis as $anamnesis) {
+                    HistorialEliminacionesController::registrarEliminacion(
+                        'Anamnesis',
+                        "Paciente: {$paciente->primer_nombre} {$paciente->primer_apellido}",
+                        "Detalle: {$anamnesis->descripcion}"
+                    );
+                    $anamnesis->delete();
+                }
+                $detalles[] = "Anamnesis eliminados: " . $historial->anamnesis->count();
+            }
+
+            // Eliminar diagnósticos
+            if ($historial->diagnosticos) {
+                foreach ($historial->diagnosticos as $diagnostico) {
+                    HistorialEliminacionesController::registrarEliminacion(
+                        'Diagnóstico',
+                        "Paciente: {$paciente->primer_nombre} {$paciente->primer_apellido}",
+                        "Enfermedad: {$diagnostico->nombre}, Observaciones: {$diagnostico->observaciones}"
+                    );
+                    $diagnostico->delete();
+                }
+                $detalles[] = "Diagnósticos eliminados: " . $historial->diagnosticos->count();
+            }
+
+            // Eliminar recetas
+            if ($historial->recetas) {
+                foreach ($historial->recetas as $receta) {
+                    HistorialEliminacionesController::registrarEliminacion(
+                        'Receta',
+                        "Paciente: {$paciente->primer_nombre} {$paciente->primer_apellido}",
+                        "Medicamentos: {$receta->detalle}"
+                    );
+                    $receta->delete();
+                }
+                $detalles[] = "Recetas eliminadas: " . $historial->recetas->count();
+            }
+
+            // Eliminar exámenes médicos
+            if ($historial->examenesMedicos) {
+                foreach ($historial->examenesMedicos as $examen) {
+                    HistorialEliminacionesController::registrarEliminacion(
+                        'Examen Médico',
+                        "Paciente: {$paciente->primer_nombre} {$paciente->primer_apellido}",
+                        "Tipo: {$examen->tipo}, Resultado: {$examen->resultado}"
+                    );
+                    $examen->delete();
+                }
+                $detalles[] = "Exámenes médicos eliminados: " . $historial->examenesMedicos->count();
+            }
+        }
+
+        // Registrar eliminación del paciente con detalles
+        HistorialEliminacionesController::registrarEliminacion(
+            'Paciente',
+            "{$paciente->primer_nombre} {$paciente->primer_apellido}",
+            implode(" | ", $detalles) // Convertir array en texto
+        );
+
+        // Eliminar el paciente
+        $paciente->delete();
+
+        return redirect()->route('pacientes.index')->with('success', 'Paciente eliminado correctamente.');
     }
 }

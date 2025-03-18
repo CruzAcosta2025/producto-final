@@ -7,7 +7,11 @@
 <div class="card">
     <h2 class="text-2xl font-bold mb-4">Detalle del Historial Clínico</h2>
 
-    <h3>Paciente: {{ $historial->paciente->primer_nombre }} {{ $historial->paciente->primer_apellido }}</h3>
+    <h3>Paciente: 
+        {{ $historial->paciente->primer_nombre }}
+        {{ $historial->paciente->primer_apellido }}
+        {{ $historial->paciente->segundo_apellido }}
+    </h3>
     <p><strong>Fecha de Creación:</strong> {{ $historial->fecha_creacion }}</p>
 
     <!-- Anamnesis -->
@@ -27,12 +31,17 @@
                     @endforeach
                 </ul>
                 <div style="margin-top: 10px;">
-                    @if (Auth::user()->id == $anamnesis->id_usuario_creador && $anamnesis->created_at->diffInHours(now()) <= 24)
-                        <a href="{{ route('anamnesis.edit', ['idHistorial' => $historial->id_historial, 'idAnamnesis' => $anamnesis->id_anamnesis]) }}"
+                    <a href="{{ route('anamnesis.edit', ['idHistorial' => $historial->id_historial, 'idAnamnesis' => $anamnesis->id_anamnesis]) }}"
                         style="display: inline-block; padding: 6px 12px; background-color: #f59e0b; color: #ffffff; text-decoration: none; border-radius: 4px; margin-right: 5px;">
                         Editar
-                        </a>
-                        @endif
+                    </a>
+
+                    <button class="btn-delete2"
+                        data-url="{{ route('anamnesis.destroy', ['idHistorial' => $historial->id_historial, 'idAnamnesis' => $anamnesis->id_anamnesis]) }}"
+                        style="padding: 6px 12px; background-color: #ef4444; color: #ffffff; border: none; border-radius: 4px; cursor: pointer;">
+                        Eliminar
+                    </button>
+
                 </div>
             </li>
             @endforeach
@@ -43,6 +52,64 @@
             Agregar Anamnesis
         </a>
     </div>
+
+    <!-- Script para eliminar anamnesis -->
+    <script>
+        document.querySelectorAll('.btn-delete2').forEach(button => {
+            button.addEventListener('click', function() {
+                const url = this.getAttribute('data-url');
+                const listItem = this.closest('li'); // Encuentra el <li> de la anamnesis
+
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "¡Esta acción no se puede revertir!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(url, {
+                                method: 'DELETE',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'Accept': 'application/json'
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire(
+                                        '¡Eliminado!',
+                                        'La anamnesis ha sido eliminada correctamente.',
+                                        'success'
+                                    );
+                                    listItem.remove(); // Eliminar del DOM
+                                } else {
+                                    Swal.fire(
+                                        'Error',
+                                        'No se pudo eliminar la anamnesis.',
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                Swal.fire(
+                                    'Error',
+                                    'Hubo un problema al eliminar la anamnesis.',
+                                    'error'
+                                );
+                            });
+                    }
+                });
+            });
+        });
+    </script>
+
+
 
 
     <!-- Alergias -->
@@ -96,29 +163,54 @@
     <script>
         document.querySelectorAll('.btn-delete').forEach(button => {
             button.addEventListener('click', function() {
-                if (!confirm('¿Confirma eliminar esta alergia?')) return;
+                const url = this.getAttribute('data-url'); // Obtiene la URL de eliminación
+                const listItem = this.closest('li'); // Encuentra el <li> correspondiente
 
-                const url = this.getAttribute('data-url');
-                fetch(url, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert('Alergia eliminada exitosamente.');
-                            location.reload();
-                        } else {
-                            alert('Error al eliminar la alergia.');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Error al eliminar la alergia.');
-                    });
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "Esta acción no se puede deshacer.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(url, {
+                                method: 'DELETE',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'Accept': 'application/json'
+                                }
+                            })
+                            .then(response => response.json()) // Convertir respuesta a JSON
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire(
+                                        '¡Eliminado!',
+                                        'La alergia ha sido eliminada correctamente.',
+                                        'success'
+                                    );
+                                    listItem.remove(); // Elimina el elemento del DOM sin recargar
+                                } else {
+                                    Swal.fire(
+                                        'Error',
+                                        'No se pudo eliminar la alergia.',
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                Swal.fire(
+                                    'Error',
+                                    'Hubo un problema al eliminar la alergia.',
+                                    'error'
+                                );
+                            });
+                    }
+                });
             });
         });
     </script>
@@ -126,7 +218,7 @@
 
     <!-- Sección de vacunas -->
     <div class="section vacunas-section" style="margin-bottom: 30px;">
-        <h4 style="font-size: 20px; margin-bottom: 15px; color: #2d3748;">3.Vacunas</h4>
+        <h4 class="section-title">2. Vacunas</h4>
         @if ($historial->vacunas->isEmpty())
         <p style="color: #718096;">No hay vacunas registradas.</p>
         @else
@@ -163,71 +255,80 @@
     </div>
 
     <!-- Script para la eliminación asíncrona -->
+
     <script>
         function eliminarVacuna(idVacuna, idHistorial) {
-            if (confirm('¿Confirma eliminar esta vacuna?')) {
-                // Obtener el token CSRF
-                const token = document.querySelector('meta[name="csrf-token"]').content;
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "Esta acción no se puede deshacer.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Obtener el token CSRF
+                    const token = document.querySelector('meta[name="csrf-token"]').content;
 
-                // Realizar la petición AJAX usando la ruta correcta con el prefijo 'vacunas'
-                fetch(`/vacunas/${idHistorial}/${idVacuna}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': token,
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Eliminar el elemento del DOM
-                            const elementoVacuna = document.getElementById(`vacuna-${idVacuna}`);
-                            elementoVacuna.remove();
+                    // Realizar la petición AJAX usando la ruta correcta con el prefijo 'vacunas'
+                    fetch(`/vacunas/${idHistorial}/${idVacuna}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': token,
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire(
+                                    '¡Eliminado!',
+                                    'La vacuna ha sido eliminada correctamente.',
+                                    'success'
+                                );
 
-                            // Verificar si quedan vacunas
-                            const listaVacunas = document.querySelector('.vacunas-section ul');
-                            if (listaVacunas && listaVacunas.children.length === 0) {
-                                // Si no quedan vacunas, mostrar el mensaje de "No hay vacunas registradas"
-                                const contenedorVacunas = document.querySelector('.vacunas-section');
-                                const mensajeNoVacunas = document.createElement('p');
-                                mensajeNoVacunas.style.color = '#718096';
-                                mensajeNoVacunas.textContent = 'No hay vacunas registradas.';
-                                listaVacunas.replaceWith(mensajeNoVacunas);
+                                // Eliminar el elemento del DOM
+                                const elementoVacuna = document.getElementById(`vacuna-${idVacuna}`);
+                                if (elementoVacuna) {
+                                    elementoVacuna.remove();
+                                }
+
+                                // Verificar si quedan vacunas
+                                const listaVacunas = document.querySelector('.vacunas-section ul');
+                                if (listaVacunas && listaVacunas.children.length === 0) {
+                                    // Si no quedan vacunas, mostrar el mensaje de "No hay vacunas registradas"
+                                    const contenedorVacunas = document.querySelector('.vacunas-section');
+                                    const mensajeNoVacunas = document.createElement('p');
+                                    mensajeNoVacunas.style.color = '#718096';
+                                    mensajeNoVacunas.textContent = 'No hay vacunas registradas.';
+                                    listaVacunas.replaceWith(mensajeNoVacunas);
+                                }
+                            } else {
+                                Swal.fire(
+                                    'Error',
+                                    'No se pudo eliminar la vacuna.',
+                                    'error'
+                                );
                             }
-
-                            // Opcional: Mostrar un mensaje de éxito temporal
-                            const mensaje = document.createElement('div');
-                            mensaje.textContent = data.message || 'Vacuna eliminada exitosamente';
-                            mensaje.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    padding: 15px;
-                    background-color: #10B981;
-                    color: white;
-                    border-radius: 4px;
-                    z-index: 1000;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                `;
-                            document.body.appendChild(mensaje);
-
-                            // Remover el mensaje después de 3 segundos
-                            setTimeout(() => {
-                                mensaje.remove();
-                            }, 3000);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Hubo un error al eliminar la vacuna');
-                    });
-            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire(
+                                'Error',
+                                'Hubo un problema al eliminar la vacuna.',
+                                'error'
+                            );
+                        });
+                }
+            });
         }
     </script>
 
 
-    <!-- Consultas -->
+    <!-- Consultas FALTA AQUI -->
     <div class="section consultas-section">
         <h4 class="section-title">4. Consultas</h4>
         @if ($historial->consultas->isEmpty())
@@ -260,7 +361,8 @@
                         Ver Archivos
                     </button>
                 </div>
-                <!-- Archivos Adjuntos -->
+
+                <!-- Archivos Adjuntos 
                 <div id="consulta-files-{{ $consulta->id_consulta }}" class="files-section hidden">
                     <h5 style="font-size: 16px; margin-top: 10px; color: #2d3748;">Archivos Adjuntos</h5>
                     @if ($consulta->archivos->isEmpty())
@@ -295,7 +397,8 @@
                         @endforeach
                     </ul>
                     @endif
-                </div>
+                </div> -->
+
             </li>
             @endforeach
         </ul>
@@ -358,16 +461,23 @@
         @else
         <ul style="list-style-type: none; padding: 0;">
             @foreach ($historial->diagnostico as $diagnostico)
-            <li class="card-item">
+            <li id="diagnostico-{{ $diagnostico->id_diagnostico }}" class="card-item">
                 <div style="margin-bottom: 10px;">
-                    <strong>Fecha:</strong> {{ $diagnostico->fecha_creacion }} <br>
-                    <strong>Descripción:</strong> {{ $diagnostico->descripcion }}
+                    <strong>Fecha:</strong> {{ \Carbon\Carbon::parse($diagnostico->fecha_creacion)->format('Y-m-d') }} <br>
+                    <strong>Grupo:</strong> {{ $diagnostico->cie10->grupo ?? 'N/A' }} <br>
+                    <strong>Categoria: </strong>{{ $diagnostico->cie10->categoria ?? 'N/A' }} <br>
+                    <strong>SubCategoria: </strong> {{ $diagnostico->cie10->subcategoria ?? 'N/A' }}
                 </div>
+
                 @if (now()->diffInHours($diagnostico->created_at) <= 24)
                     <a href="{{ route('diagnosticos.edit', [$diagnostico->id_historial, $diagnostico->id_diagnostico]) }}"
                     style="display: inline-block; padding: 6px 12px; background-color: #f59e0b; color: #ffffff; text-decoration: none; border-radius: 4px; margin-right: 5px;">
                     Editar
                     </a>
+                    <button onclick="eliminarDiagnostico('{{ $diagnostico->id_diagnostico }}', '{{ $historial->id_historial }}')"
+                        style="padding: 6px 12px; background-color: #ef4444; color: #ffffff; border: none; border-radius: 4px; cursor: pointer;">
+                        Eliminar
+                    </button>
                     @endif
             </li>
             @endforeach
@@ -380,8 +490,80 @@
         </a>
     </div>
 
+    <!-- Script para eliminar diagnósticos con SweetAlert -->
+    <script>
+        function eliminarDiagnostico(idDiagnostico, idHistorial) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "Esta acción no se puede deshacer.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Obtener el token CSRF
+                    const token = document.querySelector('meta[name="csrf-token"]').content;
 
-    <!-- Modificación en la sección de exámenes médicos -->
+                    fetch(`/diagnosticos/${idHistorial}/${idDiagnostico}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': token,
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire(
+                                    '¡Eliminado!',
+                                    'El diagnóstico ha sido eliminado correctamente.',
+                                    'success'
+                                );
+
+                                // Eliminar el elemento del DOM
+                                const elementoDiagnostico = document.getElementById(`diagnostico-${idDiagnostico}`);
+                                if (elementoDiagnostico) {
+                                    elementoDiagnostico.remove();
+                                }
+
+                                // Verificar si quedan diagnósticos
+                                const listaDiagnosticos = document.querySelector('.diagnosticos-section ul');
+                                if (listaDiagnosticos && listaDiagnosticos.children.length === 0) {
+                                    // Si no quedan diagnósticos, mostrar el mensaje "No hay diagnósticos registrados"
+                                    const contenedorDiagnosticos = document.querySelector('.diagnosticos-section');
+                                    const mensajeNoDiagnosticos = document.createElement('p');
+                                    mensajeNoDiagnosticos.style.color = '#718096';
+                                    mensajeNoDiagnosticos.textContent = 'No hay diagnósticos registrados.';
+                                    listaDiagnosticos.replaceWith(mensajeNoDiagnosticos);
+                                }
+                            } else {
+                                Swal.fire(
+                                    'Error',
+                                    'No se pudo eliminar el diagnóstico.',
+                                    'error'
+                                );
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire(
+                                'Error',
+                                'Hubo un problema al eliminar el diagnóstico.',
+                                'error'
+                            );
+                        });
+                }
+            });
+        }
+    </script>
+
+
+
+    <!-- 7. Exámenes Médicos -->
     <div class="section examenes-section">
         <h4 class="section-title">7. Exámenes Médicos</h4>
         @if ($historial->examenesMedicos->isEmpty())
@@ -389,80 +571,116 @@
         @else
         <ul style="list-style-type: none; padding: 0;">
             @foreach ($historial->examenesMedicos as $examen)
-            <li class="card-item">
+            <li id="examen-{{ $examen->id_examen }}" class="card-item"
+                style="margin-bottom: 10px; padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px;">
                 <strong>Tipo de Examen:</strong> {{ $examen->tipo_examen }} <br>
                 <strong>Descripción:</strong> {{ $examen->descripcion ?? 'No especificada' }} <br>
                 <strong>Fecha del Examen:</strong> {{ $examen->fecha_examen }} <br>
                 <strong>Resultados:</strong> {{ $examen->resultados ?? 'Sin resultados' }} <br>
+
+                <!-- Botones de acción -->
                 <div style="margin-top: 10px;">
                     <a href="{{ route('examenes.edit', [$historial->id_historial, $examen->id_examen]) }}"
                         style="display: inline-block; padding: 6px 12px; background-color: #f59e0b; color: #ffffff; text-decoration: none; border-radius: 4px; margin-right: 5px;">
                         Editar
                     </a>
-                    <!-- Botón para añadir archivo -->
-                    <a href="{{ route('archivos.create', ['idHistorial' => $historial->id_historial, 'idExamen' => $examen->id_examen]) }}"
-                        style="display: inline-block; padding: 6px 12px; background-color: #3b82f6; color: #ffffff; text-decoration: none; border-radius: 4px; margin-left: 5px;">
-                        Añadir Archivo
-                    </a>
-                    <!-- Botón para mostrar archivos -->
-                    <button class="btn btn-view mt-2 toggle-files"
-                        data-target="examen-files-{{ $examen->id_examen }}"
-                        style="display: inline-block; padding: 6px 12px; background-color: #16a34a; color: #ffffff; border: none; border-radius: 4px; margin-left: 5px;">
-                        Ver Archivos
+
+                    <!-- Botón para eliminar examen -->
+                    <button onclick="eliminarExamen('{{ $examen->id_examen }}', '{{ $historial->id_historial }}')"
+                        style="padding: 6px 12px; background-color: #ef4444; color: #ffffff; border: none; border-radius: 4px; cursor: pointer; margin-left: 5px;">
+                        Eliminar
                     </button>
-                </div>
-                <!-- Archivos adjuntos -->
-                <div id="examen-files-{{ $examen->id_examen }}" class="files-section hidden">
-                    <h5 style="font-size: 16px; margin-top: 10px; color: #2d3748;">Archivos Adjuntos</h5>
-                    <ul>
-                        @foreach ($examen->archivos as $archivo)
-                        <li style="margin-bottom: 10px;">
-                            <strong>Nombre:</strong> {{ $archivo->nombre_archivo }} <br>
-                            <div class="file-container">
-                                @if (Str::endsWith($archivo->ruta_archivo, ['.jpg', '.jpeg', '.png', '.gif']))
-                                <img src="{{ asset('storage/' . $archivo->ruta_archivo) }}"
-                                    alt="Archivo" class="responsive-img">
-                                @elseif (Str::endsWith($archivo->ruta_archivo, ['.pdf']))
-                                <embed src="{{ asset('storage/' . $archivo->ruta_archivo) }}"
-                                    type="application/pdf" width="100%" height="500px">
-                                <br>
-                                <a href="{{ asset('storage/' . $archivo->ruta_archivo) }}"
-                                    target="_blank"
-                                    style="display: inline-block; padding: 6px 12px; background-color: #2563eb; color: #ffffff; text-decoration: none; border-radius: 4px; margin-top: 10px;">
-                                    Abrir PDF
-                                </a>
-                                @else
-                                <a href="{{ asset('storage/' . $archivo->ruta_archivo) }}"
-                                    target="_blank"
-                                    style="display: inline-block; padding: 6px 12px; background-color: #2563eb; color: #ffffff; text-decoration: none; border-radius: 4px; margin-top: 10px;">
-                                    Descargar Archivo
-                                </a>
-                                @endif
-                            </div>
-                        </li>
-                        @endforeach
-                    </ul>
                 </div>
             </li>
             @endforeach
         </ul>
         @endif
+
+        <!-- Botón para añadir examen médico -->
         <a href="{{ route('examenes.create', $historial->id_historial) }}"
             style="display: inline-block; padding: 10px 20px; background-color: #3b82f6; color: #ffffff; text-decoration: none; border-radius: 4px; margin-top: 15px;">
             Añadir Examen Médico
         </a>
     </div>
 
+    <script>
+        function eliminarExamen(idExamen, idHistorial) {
+            Swal.fire({
+                title: "¿Estás seguro?",
+                text: "Esta acción no se puede deshacer",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#6c757d",
+                confirmButtonText: "Sí, eliminar",
+                cancelButtonText: "Cancelar"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Obtener el token CSRF
+                    const token = document.querySelector('meta[name="csrf-token"]').content;
+
+                    // Petición AJAX para eliminar examen
+                    fetch(`/historial/${idHistorial}/examenes/${idExamen}`, { // URL CORREGIDA
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': token,
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Eliminar el examen del DOM
+                                document.getElementById(`examen-${idExamen}`).remove();
+
+                                // Verificar si quedan exámenes
+                                const listaExamenes = document.querySelector('.examenes-section ul');
+                                if (listaExamenes && listaExamenes.children.length === 0) {
+                                    const contenedorExamenes = document.querySelector('.examenes-section');
+                                    const mensajeNoExamenes = document.createElement('p');
+                                    mensajeNoExamenes.style.color = '#718096';
+                                    mensajeNoExamenes.textContent = 'No hay exámenes médicos registrados.';
+                                    listaExamenes.replaceWith(mensajeNoExamenes);
+                                }
+
+                                // Mostrar mensaje de éxito con SweetAlert
+                                Swal.fire({
+                                    title: "Eliminado",
+                                    text: "El examen ha sido eliminado exitosamente",
+                                    icon: "success",
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                            } else {
+                                throw new Error("Error en la respuesta del servidor.");
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire({
+                                title: "Error",
+                                text: "Hubo un problema al eliminar el examen",
+                                icon: "error",
+                            });
+                        });
+                }
+            });
+        }
+    </script>
+
+
 
     <!-- 8. Recetas -->
     <div class="section recetas-section">
         <h4 class="section-title">8. Recetas</h4>
+
         @if ($historial->recetas->isEmpty())
         <p style="color: #718096;">No hay recetas registradas.</p>
         @else
         <ul style="list-style-type: none; padding: 0;">
             @foreach ($historial->recetas as $receta)
-            <li class="card-item">
+            <li id="receta-{{ $receta->id_receta }}" class="card-item">
                 <strong>Fecha de la Receta:</strong> {{ $receta->fecha_receta }} <br>
                 <strong>Médico:</strong> {{ $receta->personalMedico->usuario->nombre ?? 'No registrado' }} <br>
 
@@ -473,15 +691,17 @@
                         style="display: inline-block; padding: 6px 12px; background-color: #f59e0b; color: #ffffff; text-decoration: none; border-radius: 4px; margin-right: 5px;">
                         Editar
                         </a>
+                        <button onclick="eliminarReceta('{{ $receta->id_receta }}', '{{ $historial->id_historial }}')"
+                            style="padding: 6px 12px; background-color: #ef4444; color: #ffffff; border: none; border-radius: 4px; cursor: pointer;">
+                            Eliminar
+                        </button>
                         @endif
-                        <!-- Botón para desglosar medicamentos -->
                         <button class="toggle-medicamentos" data-target="medicamentos-{{ $receta->id_receta }}"
                             style="display: inline-block; padding: 6px 12px; background-color: #3b82f6; color: #ffffff; text-decoration: none; border-radius: 4px; margin-right: 5px;">
                             Ver Medicamentos
                         </button>
-                        <!-- Botón para añadir medicamentos -->
                         <a href="{{ route('medicamentos.create', $receta->id_receta) }}"
-                            style="display: inline-block; padding: 6px 12px; background-color: #22c55e; color: #ffffff; text-decoration: none; border-radius: 4px; margin-right: 5px;">
+                            style="display: inline-block; padding: 6px 12px; background-color: #22c55e; color: #ffffff; text-decoration: none; border-radius: 4px;">
                             Añadir Medicamento
                         </a>
                 </div>
@@ -494,14 +714,12 @@
                     @else
                     <ul style="list-style-type: none; padding: 0;">
                         @foreach ($receta->medicamentos as $medicamento)
-                        <li
-                            style="margin-bottom: 10px; border: 1px solid #d1d5db; border-radius: 4px; padding: 10px; background-color: #f9fafb;">
+                        <li style="margin-bottom: 10px; border: 1px solid #d1d5db; border-radius: 4px; padding: 10px; background-color: #f9fafb;">
                             <strong>Medicamento:</strong> {{ $medicamento->medicamento }} <br>
                             <strong>Dosis:</strong> {{ $medicamento->dosis }} <br>
                             <strong>Frecuencia:</strong> {{ $medicamento->frecuencia }} <br>
                             <strong>Duración:</strong> {{ $medicamento->duracion }} <br>
-                            <strong>Instrucciones:</strong>
-                            {{ $medicamento->instrucciones ?? 'Sin instrucciones' }}
+                            <strong>Instrucciones:</strong> {{ $medicamento->instrucciones ?? 'Sin instrucciones' }}
                         </li>
                         @endforeach
                     </ul>
@@ -519,6 +737,76 @@
         </a>
     </div>
 
+    <!-- Script para eliminar recetas junto con sus medicamentos -->
+    <script>
+        function eliminarReceta(idReceta, idHistorial) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "Se eliminará la receta y todos los medicamentos asociados.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const token = document.querySelector('meta[name="csrf-token"]').content;
+
+                    fetch(`/recetas/${idHistorial}/${idReceta}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': token,
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire(
+                                    '¡Eliminado!',
+                                    'La receta y sus medicamentos han sido eliminados correctamente.',
+                                    'success'
+                                );
+
+                                // Eliminar la receta del DOM
+                                const elementoReceta = document.getElementById(`receta-${idReceta}`);
+                                if (elementoReceta) {
+                                    elementoReceta.remove();
+                                }
+
+                                // Verificar si quedan recetas
+                                const listaRecetas = document.querySelector('.recetas-section ul');
+                                if (listaRecetas && listaRecetas.children.length === 0) {
+                                    const contenedorRecetas = document.querySelector('.recetas-section');
+                                    const mensajeNoRecetas = document.createElement('p');
+                                    mensajeNoRecetas.style.color = '#718096';
+                                    mensajeNoRecetas.textContent = 'No hay recetas registradas.';
+                                    listaRecetas.replaceWith(mensajeNoRecetas);
+                                }
+                            } else {
+                                Swal.fire(
+                                    'Error',
+                                    'No se pudo eliminar la receta y sus medicamentos.',
+                                    'error'
+                                );
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire(
+                                'Error',
+                                'Hubo un problema al eliminar la receta y sus medicamentos.',
+                                'error'
+                            );
+                        });
+                }
+            });
+        }
+    </script>
+
+    <!-- Script para mostrar/ocultar medicamentos -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.toggle-medicamentos').forEach(button => {
@@ -538,7 +826,6 @@
         }
     </style>
 
-
     <!-- 9. Tratamientos -->
     <div class="section tratamientos-section">
         <h4 class="section-title">9. Tratamientos</h4>
@@ -547,7 +834,7 @@
         @else
         <ul style="list-style-type: none; padding: 0;">
             @foreach ($historial->tratamientos as $tratamiento)
-            <li class="card-item"
+            <li id="tratamiento-{{ $tratamiento->id_tratamiento }}" class="card-item"
                 style="margin-bottom: 10px; padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px;">
                 <strong>Descripción:</strong> {{ $tratamiento->descripcion }} <br>
                 <strong>Fecha:</strong> {{ $tratamiento->fecha_creacion }}
@@ -560,6 +847,12 @@
                         Editar
                         </a>
                         @endif
+
+                        <!-- Botón de eliminación con SweetAlert -->
+                        <button onclick="eliminarTratamiento('{{ $tratamiento->id_tratamiento }}', '{{ $historial->id_historial }}')"
+                            style="padding: 6px 12px; background-color: #ef4444; color: #ffffff; border: none; border-radius: 4px; cursor: pointer;">
+                            Eliminar
+                        </button>
                 </div>
             </li>
             @endforeach
@@ -573,7 +866,73 @@
         </a>
     </div>
 
-    <!-- Triajes -->
+    <!-- SweetAlert + AJAX para eliminar tratamiento -->
+    <script>
+        function eliminarTratamiento(idTratamiento, idHistorial) {
+            Swal.fire({
+                title: "¿Estás seguro?",
+                text: "Esta acción no se puede deshacer",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#6c757d",
+                confirmButtonText: "Sí, eliminar",
+                cancelButtonText: "Cancelar"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Obtener el token CSRF
+                    const token = document.querySelector('meta[name="csrf-token"]').content;
+
+                    // Petición AJAX para eliminar tratamiento
+                    fetch(`/tratamientos/${idHistorial}/${idTratamiento}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': token,
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Eliminar el tratamiento del DOM
+                                document.getElementById(`tratamiento-${idTratamiento}`).remove();
+
+                                // Verificar si quedan tratamientos
+                                const listaTratamientos = document.querySelector('.tratamientos-section ul');
+                                if (listaTratamientos && listaTratamientos.children.length === 0) {
+                                    const contenedorTratamientos = document.querySelector('.tratamientos-section');
+                                    const mensajeNoTratamientos = document.createElement('p');
+                                    mensajeNoTratamientos.style.color = '#718096';
+                                    mensajeNoTratamientos.textContent = 'No hay tratamientos registrados.';
+                                    listaTratamientos.replaceWith(mensajeNoTratamientos);
+                                }
+
+                                // Mostrar mensaje de éxito con SweetAlert
+                                Swal.fire({
+                                    title: "Eliminado",
+                                    text: "El tratamiento ha sido eliminado exitosamente",
+                                    icon: "success",
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire({
+                                title: "Error",
+                                text: "Hubo un problema al eliminar el tratamiento",
+                                icon: "error",
+                            });
+                        });
+                }
+            });
+        }
+    </script>
+
+
+    <!-- Triajes 
     <div class="section triaje-section">
         <h4 class="section-title">10. Triajes</h4>
         @if ($historial->triaje->isEmpty())
@@ -626,9 +985,9 @@
             </table>
         </div>
         @endif
-    </div>
+    </div> -->
 
-    <!-- Archivos Adjuntos -->
+    <!-- Archivos Adjuntos 
     <div class="section archivos-section">
         <h4 class="section-title">11. Archivos Adjuntos</h4>
         @if ($historial->archivosAdjuntos->isEmpty())
@@ -670,7 +1029,8 @@
             </ul>
         </div>
         @endif
-    </div>
+    </div> -->
+
 </div>
 <!-- Botón de regreso -->
 <a href="{{ route('historial.index') }}" class="btn btn-secondary">Regresar</a>

@@ -109,7 +109,9 @@ class ExamenesMedicosController extends Controller
         $examen = ExamenMedico::where('id_historial', $idHistorial)->findOrFail($idExamen);
         $examen->delete();
 
-        return redirect()->route('examenes.index', $idHistorial)
-            ->with('success', 'Examen médico eliminado exitosamente.');
+        return response()->json([
+            'success' => true,
+            'message' => 'Examen médico eliminado exitosamente.'
+        ]);
     }
 }

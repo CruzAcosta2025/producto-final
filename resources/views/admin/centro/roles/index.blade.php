@@ -34,10 +34,7 @@
                             class="bg-blue-800 text-white px-3 py-2 rounded-md hover:bg-blue-800 transition">
                             Editar
                         </a>
-                        <a href="{{ route('roles-permisos.edit', $rol->id_rol) }}"
-                            class="bg-indigo-800 text-white px-3 py-2 rounded-md hover:bg-indigo-800 transition">
-                            Asignar Permisos
-                        </a>
+
                         <form action="{{ route('roles.destroy', $rol->id_rol) }}" method="POST"
                             onsubmit="return confirm('¿Estás seguro de eliminar este rol?')">
                             @csrf

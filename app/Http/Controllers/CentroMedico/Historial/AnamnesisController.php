@@ -92,4 +92,28 @@ class AnamnesisController extends Controller
 
         return redirect()->route('historial.show', $idHistorial)->with('success', 'Anamnesis actualizada exitosamente.');
     }
+
+    public function destroy($idHistorial, $idAnamnesis)
+    {
+        try {
+            // Verifica que el historial clínico pertenezca al centro del usuario autenticado
+            $historial = HistorialClinico::where('id_centro', Auth::user()->id_centro)
+                ->findOrFail($idHistorial);
+
+            // Busca la anamnesis en el historial correspondiente
+            $anamnesis = Anamnesis::where('id_historial', $idHistorial)
+                ->findOrFail($idAnamnesis);
+
+            // Eliminar la anamnesis
+            $anamnesis->delete();
+
+            // Retornar respuesta JSON para AJAX
+            return response()->json(['success' => true, 'message' => 'Anamnesis eliminada exitosamente.']);
+        } catch (\Exception $e) {
+            \Log::error("Error al eliminar anamnesis: " . $e->getMessage());
+
+            return response()->json(['success' => false, 'message' => 'Error al eliminar la anamnesis.'], 500);
+        }
+    }
+    
 }

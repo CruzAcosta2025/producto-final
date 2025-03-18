@@ -18,6 +18,7 @@
                     <li><a href="{{ route('admin.global.dashboard') }}" class="px-3 py-1 hover:bg-blue-700 rounded">Dashboard</a></li>
                     <li><a href="{{ route('centros.index') }}" class="px-3 py-1 hover:bg-blue-700 rounded">Gestión de Centros</a></li>
                     <li><a href="{{ route('usuarios.index') }}" class="px-3 py-1 hover:bg-blue-700 rounded">Usuarios</a></li>
+                    <li><a href="{{ route('historial.eliminaciones') }}" class="px-3 py-1 hover:bg-blue-700 rounded">Historial</a></li>
                     <li>
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
                             @csrf

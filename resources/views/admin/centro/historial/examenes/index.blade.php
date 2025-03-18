@@ -22,7 +22,7 @@
 
         @if ($historial)
         <div class="p-6">
-            <h3 class="text-lg font-bold text-gray-800">Paciente: {{ $historial->paciente->primer_nombre }} {{ $historial->paciente->primer_apellido }}</h3>
+            <h3 class="text-lg font-bold text-gray-800">Paciente: {{ $historial->paciente->primer_nombre }} {{ $historial->paciente->primer_apellido }} {{ $historial->paciente->segundo_apellido }}</h3>
             <ul class="mt-4 space-y-2">
                 @foreach ($examenes as $examen)
                     <li class="p-3 bg-gray-100 border border-black rounded-md flex justify-between items-center">

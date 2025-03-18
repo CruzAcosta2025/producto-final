@@ -34,7 +34,7 @@
                 @forelse($pacientes as $paciente)
                 <tr class="border border-sky-500 hover:bg-sky-200 transition">
                     <td class="px-6 py-4 border border-sky-500">
-                        {{ $paciente->primer_nombre }} {{ $paciente->segundo_nombre }}
+                        {{ $paciente->primer_nombre }}
                         {{ $paciente->primer_apellido }} {{ $paciente->segundo_apellido }}
                     </td>
                     <td class="px-6 py-4 border border-sky-500 text-center">{{ $paciente->dni }}</td>
@@ -48,7 +48,7 @@
                         <form action="{{ route('pacientes.destroy', $paciente->id_paciente) }}" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar este paciente?')">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="bg-red-600 text-white px-3 py-2 rounded-md hover:bg-red-700 transition" disabled>
+                            <button type="submit" class="bg-red-600 text-white px-3 py-2 rounded-md hover:bg-red-700 transition">
                                 Eliminar
                             </button>
                         </form>

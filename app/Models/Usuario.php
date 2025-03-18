@@ -28,10 +28,13 @@ class Usuario extends Authenticatable
         'remember_token'
     ];
 
+
+
     public function centroMedico()
     {
-        return $this->belongsTo(CentroMedico::class, 'id_centro');
+        return $this->belongsTo(CentroMedico::class, 'id_centro', 'id_centro');
     }
+
 
     public function personalMedico()
     {

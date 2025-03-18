@@ -5,8 +5,10 @@
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>@yield('title', 'Panel Administrador - Centro Médico')</title>
     <script src="https://cdn.tailwindcss.com"></script>
+
 </head>
 
 <body class="bg-gray-100 min-h-screen flex">
@@ -27,7 +29,7 @@
                         <li><a href="{{ route('roles.index') }}" class="block px-4 py-2 bg-blue-700 rounded-md hover:bg-blue-800 transition">Gestión de Roles</a></li> 
                         <!-- <li><a href="{{ route('permisos.index') }}" class="block px-4 py-2 bg-blue-700 rounded-md hover:bg-blue-800 transition">Gestión de Permisos</a></li> -->
                         <li><a href="{{ route('usuarios-centro.index') }}" class="block px-4 py-2 bg-blue-700 rounded-md hover:bg-blue-800 transition">Gestión de Usuarios</a></li>
-                        <li><a href="{{ route('configurar.centro') }}" class="block px-4 py-2 bg-blue-800 rounded-md hover:bg-blue-900 transition">Configurar</a></li>
+                        <li><a href="{{ route('configurar.centro') }}" class="block px-4 py-2 bg-blue-800 rounded-md hover:bg-blue-900 transition">Edición</a></li>
                         <li><a href="{{ route('caja.index') }}" class="block px-4 py-2 bg-blue-800 rounded-md hover:bg-blue-900 transition">Facturación</a></li>
 
                     </ul>
@@ -106,7 +108,7 @@
         }
     </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     @if(session('success'))
     <script>
         Swal.fire({

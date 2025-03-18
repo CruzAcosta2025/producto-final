@@ -96,4 +96,13 @@ class HistorialClinicoController extends Controller
 
         return view('admin.centro.historial.show', compact('historial'));
     }
+
+    public function destroy($idHistorial)
+    {
+        $historial = HistorialClinico::where('id_centro', Auth::user()->id_centro)->findOrFail($idHistorial);
+
+        $historial->delete();
+
+        return redirect()->route('historial.index')->with('success', 'Historial clínico eliminado exitosamente.');
+    }
 }

@@ -91,9 +91,18 @@ class RecetaController extends Controller
 
     public function destroy($idHistorial, $idReceta)
     {
-        $receta = Receta::where('id_historial', $idHistorial)->findOrFail($idReceta);
-        $receta->delete();
+        try {
+            $receta = Receta::where('id_historial', $idHistorial)->findOrFail($idReceta);
 
-        return response()->json(['success' => true, 'message' => 'Receta eliminada exitosamente.']);
+            // Eliminar medicamentos antes de eliminar la receta
+            $receta->medicamentos()->delete();
+
+            // Ahora eliminar la receta
+            $receta->delete();
+
+            return response()->json(['success' => true, 'message' => 'Receta y sus medicamentos eliminados correctamente.']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error al eliminar la receta.'], 500);
+        }
     }
 }

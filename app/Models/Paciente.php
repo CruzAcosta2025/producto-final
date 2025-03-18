@@ -4,14 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Paciente extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'pacientes';
     protected $primaryKey = 'id_paciente';
     public $timestamps = true;
+    protected $dates = ['deleted_at'];
 
     protected $fillable = [
         'id_centro',
@@ -59,5 +61,52 @@ class Paciente extends Model
     public function getNombreCompletoAttribute()
     {
         return "{$this->primer_nombre} {$this->primer_apellido}";
+    }
+
+    public function anamnesis()
+    {
+        return $this->hasManyThrough(
+            Anamnesis::class,       // Modelo final
+            HistorialClinico::class, // Modelo intermedio
+            'id_paciente',         // Clave foránea en HistorialClinico
+            'id_historial',        // Clave foránea en Anamnesis
+            'id_paciente',         // Clave primaria en Paciente
+            'id_historial'         // Clave primaria en HistorialClinico
+        );
+    }
+    public function diagnosticos()
+    {
+        return $this->hasManyThrough(
+            Diagnostico::class,     // Modelo final
+            HistorialClinico::class, // Modelo intermedio
+            'id_paciente',         // Clave foránea en HistorialClinico
+            'id_historial',        // Clave foránea en Diagnostico
+            'id_paciente',         // Clave primaria en Paciente
+            'id_historial'         // Clave primaria en HistorialClinico
+        );
+    }
+
+    public function recetas()
+    {
+        return $this->hasManyThrough(
+            Receta::class,
+            HistorialClinico::class,
+            'id_paciente', // Foreign key en HistorialClinico
+            'id_historial', // Foreign key en Receta
+            'id_paciente', // Local key en Paciente
+            'id_historial' // Local key en HistorialClinico
+        );
+    }
+
+    public function examenesMedicos()
+    {
+        return $this->hasManyThrough(
+            ExamenMedico::class,
+            HistorialClinico::class,
+            'id_paciente', // Foreign key en HistorialClinico
+            'id_historial', // Foreign key en ExamenMedico
+            'id_paciente', // Local key en Paciente
+            'id_historial' // Local key en HistorialClinico
+        );
     }
 }

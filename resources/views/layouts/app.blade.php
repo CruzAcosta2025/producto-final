@@ -19,6 +19,7 @@
                     <li><a href="{{ route('admin.global.dashboard') }}" class="hover:text-gray-300">Dashboard</a></li>
                     <li><a href="{{ route('centros.index') }}" class="hover:text-gray-300">Centros Médicos</a></li>
                     <li><a href="{{ route('usuarios.index') }}" class="hover:text-gray-300">Usuarios</a></li>
+                    <li><a href="{{ route('historial.eliminaciones') }}" class="hover:text-gray-300">Historial</a></li>
                     <li>
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" class="inline">
                             @csrf

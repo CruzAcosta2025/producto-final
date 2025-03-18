@@ -1,14 +1,14 @@
 @extends('layouts.admin-centro')
 
 
-@section('title', 'Configurar Centro Médico')
+@section('title', 'Editar Centro Médico')
 
 @section('content')
 
 <div class="container mx-auto px-4 py-8">
     <div class="max-w-2xl mx-auto bg-white p-6 rounded-xl shadow-lg border-2 border-black">
         <div class="px-6 py-4 bg-lime-500">
-            <h2 class="text-3xl font-semibold text-white text-center">Configurar Centro Medico</h2>
+            <h2 class="text-3xl font-semibold text-white text-center">Editar Centro Medico</h2>
         </div>
 
         @if (session('success'))

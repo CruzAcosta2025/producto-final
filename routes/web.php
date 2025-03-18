@@ -40,6 +40,8 @@ use App\Http\Controllers\CentroMedico\Reportes\ReporteController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\DniController;
 use App\Http\Controllers\AdminGlobalController;
+use App\Http\Controllers\HistorialEliminacionesController;
+
 
 
 
@@ -82,6 +84,12 @@ Route::middleware(['auth'])->group(function () {
         return view('admin.centro.dashboard', compact('centro'));
     })->name('admin.centro.dashboard');
 
+    Route::get('/historial/export-excel', [HistorialEliminacionesController::class, 'exportExcel'])->name('historial.exportExcel');
+    Route::get('/historial/export-pdf', [HistorialEliminacionesController::class, 'exportPDF'])->name('historial.exportPDF');
+
+    Route::get('/admin/global/historial-eliminaciones', [HistorialEliminacionesController::class, 'index'])
+        ->name('historial.eliminaciones')
+        ->middleware('auth');
 
     // Rutas específicas de habilitar y deshabilitar centros
     Route::post('centros/{id}/disable', [CentroMedicoController::class, 'disable'])->name('centros.disable');
@@ -122,7 +130,9 @@ Route::middleware(['auth'])->group(function () {
     // Rutas para Historial Clínico
     Route::get('historial/{id}/show', [HistorialClinicoController::class, 'show'])->name('historial.show');
     Route::post('historial/create/{idPaciente}', [HistorialClinicoController::class, 'store'])->name('historial.store.paciente');
-    
+    Route::delete('historial/{id}/', [HistorialClinicoController::class, 'destroy'])->name('historial.destroy');
+
+
     // Rutas para Anamnesis
     Route::prefix('historial/{idHistorial}/anamnesis')->group(function () {
         Route::get('/create', [AnamnesisController::class, 'create'])->name('anamnesis.create');
@@ -130,6 +140,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/', [AnamnesisController::class, 'store'])->name('anamnesis.store');
         Route::get('/{idAnamnesis}/edit', [AnamnesisController::class, 'edit'])->name('anamnesis.edit');
         Route::put('/{idAnamnesis}', [AnamnesisController::class, 'update'])->name('anamnesis.update');
+        Route::delete('/{idAnamnesis}', [AnamnesisController::class, 'destroy'])->name('anamnesis.destroy');
     });
 
     // Rutas para Consultas
@@ -354,4 +365,3 @@ Route::middleware(['auth'])->prefix('centro/modulocaja')->group(function () {
     Route::delete('/destroy/{id}', [CajaTransaccionesController::class, 'destroy'])->name('modulocaja.destroy');
     Route::post('/sincronizar', [CajaTransaccionesController::class, 'sincronizarTransaccionesDesdeFacturas'])->name('modulocaja.sincronizar');
 });
-

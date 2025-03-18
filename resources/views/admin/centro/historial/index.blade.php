@@ -42,6 +42,8 @@
     <p class="text-red-600 font-medium">No se encontró ningún paciente con el DNI {{ $dni }}.</p>
     @endif
 
+
+
     <!-- Tabla de todos los historiales clínicos -->
     <div class="overflow-x-auto">
         <table class="min-w-full bg-orange-100 border border-orange-600 rounded-lg shadow-md">
@@ -57,13 +59,21 @@
                 @foreach ($historiales as $historial)
                 <tr class="border border-orange-500 hover:bg-orange-200 transition">
                     <td class="px-6 py-4 border border-orange-500 text-center">{{ $historial->id_historial }}</td>
-                    <td class="px-6 py-4 border border-orange-500 text-center">{{ $historial->paciente->primer_nombre }} {{ $historial->paciente->primer_apellido }}</td>
+                    <td class="px-6 py-4 border border-orange-500 text-center">{{ $historial->paciente->primer_nombre }} {{ $historial->paciente->primer_apellido }} {{ $historial->paciente->segundo_apellido }}</td>
                     <td class="px-6 py-4 border border-orange-500 text-center">{{ $historial->fecha_creacion }}</td>
                     <td class="px-3 py-2 flex flex-wrap justify-center gap-2">
+
                         <a href="{{ route('historial.show', $historial->id_historial) }}"
                             class="bg-amber-700 text-white px-3 py-2 rounded-md hover:bg-amber-800 transition">Ver</a>
                         <a href="{{ route('historial.edit', $historial->id_historial) }}"
                             class="bg-blue-700 text-white px-3 py-2 rounded-md hover:bg-blue-800 transition">Editar</a>
+                        <form action="{{ route('historial.destroy', $historial->id_historial) }}" method="POST" class="delete-form">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="px-3 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-md border border-black">
+                                Eliminar
+                            </button>
+                        </form>
                     </td>
                 </tr>
                 @endforeach
@@ -71,4 +81,5 @@
         </table>
     </div>
 </div>
+
 @endsection

@@ -43,7 +43,7 @@
                         <form action="{{ route('servicios.destroy', $servicio->id_servicio) }}" method="POST" onsubmit="return confirm('¿Está seguro de eliminar este servicio?')">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="bg-red-600 text-white px-3 py-2 rounded-md hover:bg-red-700 transition" disabled>
+                            <button type="submit" class="bg-red-600 text-white px-3 py-2 rounded-md hover:bg-red-700 transition">
                                 Eliminar
                             </button>
                         </form>
